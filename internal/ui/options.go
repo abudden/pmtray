@@ -79,6 +79,7 @@ func (o *optionsWindow) show() {
 	o.refreshGeneral()
 	o.updateStatus()
 	o.win.Show()
+	fixScale(o.win, nil)
 	o.win.RequestFocus()
 }
 

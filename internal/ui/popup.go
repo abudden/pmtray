@@ -457,6 +457,7 @@ func (p *popup) show() {
 	placeWindow(p.win)
 	p.win.Show()
 	placeWindow(p.win)
+	fixScale(p.win, func() { placeWindow(p.win) })
 	p.win.RequestFocus()
 
 	c := p.win.Canvas()
