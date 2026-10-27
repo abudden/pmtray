@@ -79,7 +79,7 @@ func (o *optionsWindow) show() {
 	o.refreshGeneral()
 	o.updateStatus()
 	o.win.Show()
-	fixScale(o.win, nil)
+	fixScale(o.win, func() { o.win.Resize(fyne.NewSize(700, 560)) })
 	o.win.RequestFocus()
 }
 
@@ -663,6 +663,7 @@ func (o *optionsWindow) chooseExistingFile() {
 		o.switchFile(r.URI().Path())
 	}, o.win)
 	d.SetFilter(rdfFilter())
+	d.SetView(dialog.ListView)
 	if l := o.startDir(); l != nil {
 		d.SetLocation(l)
 	}
@@ -683,6 +684,7 @@ func (o *optionsWindow) chooseNewFile() {
 	}, o.win)
 	d.SetFileName("profiles.rdf")
 	d.SetFilter(rdfFilter())
+	d.SetView(dialog.ListView)
 	if l := o.startDir(); l != nil {
 		d.SetLocation(l)
 	}
