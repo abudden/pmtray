@@ -14,7 +14,7 @@ import (
 	"github.com/abudden/pmtray/internal/pwm"
 )
 
-const popupWidth = 400
+const popupWidth = 320
 
 // popup is the window shown when the tray icon is clicked.
 type popup struct {

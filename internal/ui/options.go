@@ -69,7 +69,7 @@ func newOptionsWindow(a *App) *optionsWindow {
 		container.NewTabItem("General Options", o.buildGeneralTab()),
 	)
 	o.win.SetContent(tabs)
-	o.win.Resize(fyne.NewSize(860, 680))
+	o.win.Resize(fyne.NewSize(700, 560))
 	o.win.CenterOnScreen()
 	o.selectProfile(0)
 	return o

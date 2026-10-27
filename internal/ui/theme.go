@@ -20,7 +20,28 @@ func (t zoomTheme) Font(s fyne.TextStyle) fyne.Resource { return theme.DefaultTh
 
 func (t zoomTheme) Icon(n fyne.ThemeIconName) fyne.Resource { return theme.DefaultTheme().Icon(n) }
 
+// compactSizes replaces some of the default theme's sizes, which are
+// designed for touch screens, with ones closer to native desktop dialogs.
+var compactSizes = map[fyne.ThemeSizeName]float32{
+	theme.SizeNameText:            12,
+	theme.SizeNameSubHeadingText:  15,
+	theme.SizeNameHeadingText:     18,
+	theme.SizeNameCaptionText:     10,
+	theme.SizeNamePadding:         3,
+	theme.SizeNameInnerPadding:    5,
+	theme.SizeNameLineSpacing:     2,
+	theme.SizeNameInlineIcon:      16,
+	theme.SizeNameScrollBar:       10,
+	theme.SizeNameScrollBarSmall:  3,
+	theme.SizeNameInputRadius:     3,
+	theme.SizeNameSelectionRadius: 2,
+	theme.SizeNameScrollBarRadius: 3,
+}
+
 func (t zoomTheme) Size(n fyne.ThemeSizeName) float32 {
+	if s, ok := compactSizes[n]; ok {
+		return s * t.scale
+	}
 	return theme.DefaultTheme().Size(n) * t.scale
 }
 
