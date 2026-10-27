@@ -8,6 +8,15 @@ and uses the extension's RDF profile file directly as its configuration.
 
 Windows is the main target; it also runs on Linux (and should build on macOS).
 
+## Download
+
+Download `pmtray.exe` from the [latest release](https://github.com/abudden/pmtray/releases/latest)
+and run it; there's nothing to install. Use **Options → General Options →
+Start PasswordMaker When I Log In** to have it start automatically.
+
+A Linux build (`pmtray-linux-amd64`) is attached to each release too. Make it
+executable with `chmod +x pmtray-linux-amd64` after downloading.
+
 ## Using it
 
 Click the tray icon to show the popup:
@@ -126,6 +135,20 @@ from a literal port of the extension's JavaScript, including the quirks of its
 
 The tray icon is drawn by `go run ./tools/mkicon internal/ui/assets/icon.png`.
 
+### Making a release
+
+1. Update the version numbers in `winres/winres.json`, run
+   `go-winres make --arch amd64,arm64` and commit the result.
+2. Create a GitHub release with a new `vX.Y.Z` tag. The workflow builds the
+   executables, sends the Windows one to SignPath for signing (approve the
+   request there) and attaches them to the release.
+
+The SignPath step needs a `SIGNPATH_API_TOKEN` repository secret and a
+`SIGNPATH_ORGANIZATION_ID` repository variable, and a SignPath project with
+the slug `pmtray`, a `release-signing` policy and the artifact configuration
+in `.signpath/artifact-configuration.xml`. Without them the executable is
+released unsigned.
+
 ## Layout
 
 | Path              | Contents |
@@ -136,7 +159,29 @@ The tray icon is drawn by `go run ./tools/mkicon internal/ui/assets/icon.png`.
 | `internal/ui`     | Tray icon, popup and options window. |
 | `internal/single` | Single-instance handling. |
 
-## Credits
+## Licence
+
+PasswordMaker Tray is free software, licensed under the GNU Lesser General
+Public License version 3 (see [COPYING.LESSER](COPYING.LESSER) and
+[COPYING](COPYING)).
 
 The password algorithm, l33t tables and top-level domain list are ported from
-the PasswordMaker Pro Chrome extension, which is licensed under the LGPL 3.0.
+the [PasswordMaker Pro Chrome extension](https://github.com/passwordmaker/chrome-passwordmaker),
+which is also licensed under the LGPL 3.0.
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io),
+certificate by [SignPath Foundation](https://signpath.org).
+
+* Only the Windows executable built by this repository's GitHub Actions
+  workflow from a tagged release is signed. Nothing built elsewhere, and no
+  third-party program, is signed with this certificate.
+* Committers and reviewers: [abudden](https://github.com/abudden)
+* Approvers (each signing request is approved manually): [abudden](https://github.com/abudden)
+
+## Privacy policy
+
+This program will not transfer any information to other networked systems.
+Your profiles, settings and (if you choose to store it) master password stay
+in files on your own computer.

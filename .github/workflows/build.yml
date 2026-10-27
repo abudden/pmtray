@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  actions: read # lets SignPath download the unsigned build
 
 jobs:
   test:
@@ -24,6 +25,8 @@ jobs:
 
   windows:
     runs-on: windows-latest
+    env:
+      SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
@@ -33,9 +36,33 @@ jobs:
         shell: bash
         run: go build -trimpath -ldflags "-s -w -H=windowsgui" -o dist/pmtray.exe .
       - uses: actions/upload-artifact@v7
+        id: upload-unsigned
         with:
           name: pmtray-windows-amd64
           path: dist/pmtray.exe
+
+      # Releases are code-signed through SignPath once the repository's
+      # SIGNPATH_API_TOKEN secret and SIGNPATH_ORGANIZATION_ID variable are
+      # set (see "Code signing policy" in README.md). Until then, and for
+      # ordinary pushes, the executable is left unsigned.
+      - name: Sign with SignPath
+        if: startsWith(github.ref, 'refs/tags/v') && env.SIGNPATH_API_TOKEN != ''
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: pmtray
+          signing-policy-slug: release-signing
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: dist/signed
+      - name: Replace the build with the signed executable
+        if: hashFiles('dist/signed/pmtray.exe') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: pmtray-windows-amd64
+          path: dist/signed/pmtray.exe
+          overwrite: true
 
   linux:
     runs-on: ubuntu-24.04
