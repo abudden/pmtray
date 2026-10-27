@@ -79,7 +79,6 @@ func (o *optionsWindow) show() {
 	o.refreshGeneral()
 	o.updateStatus()
 	o.win.Show()
-	fixScale(o.win, func() { o.win.Resize(fyne.NewSize(700, 560)) })
 	o.win.RequestFocus()
 }
 

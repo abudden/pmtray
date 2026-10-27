@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"math"
-	"time"
 	"unsafe"
 
 	"fyne.io/fyne/v2"
@@ -18,7 +16,6 @@ var (
 	procGetWindowRect    = user32.NewProc("GetWindowRect")
 	procSetWindowPos     = user32.NewProc("SetWindowPos")
 	procSetForeground    = user32.NewProc("SetForegroundWindow")
-	procGetDpiForWindow  = user32.NewProc("GetDpiForWindow")
 )
 
 type point struct{ X, Y int32 }
@@ -81,41 +78,4 @@ func placeWindow(w fyne.Window) {
 		procSetWindowPos.Call(wc.HWND, 0, uintptr(x), uintptr(y), 0, 0, swpNoSize|swpNoZOrder|swpNoActivate)
 		procSetForeground.Call(wc.HWND)
 	})
-}
-
-func hwnd(w fyne.Window) uintptr {
-	var h uintptr
-	if nw, ok := w.(driver.NativeWindow); ok {
-		nw.RunNative(func(ctx any) {
-			if wc, ok := ctx.(driver.WindowsWindowContext); ok {
-				h = wc.HWND
-			}
-		})
-	}
-	return h
-}
-
-// fixScale works around Fyne keeping the scale of the monitor a window was
-// created on after it has been moved to a monitor with a different Windows
-// scaling setting (Fyne only re-checks when the physical DPI changes). If
-// the window's scale doesn't match its monitor, re-applying the theme makes
-// Fyne recalculate it; after is then called once the window has resized.
-func fixScale(w fyne.Window, after func()) {
-	h := hwnd(w)
-	if h == 0 || procGetDpiForWindow.Find() != nil {
-		return
-	}
-	dpi, _, _ := procGetDpiForWindow.Call(h)
-	if dpi == 0 {
-		return
-	}
-	want := float32(math.Round(float64(dpi)/96*10) / 10)
-	if w.Canvas().Scale() == want {
-		return
-	}
-	a := fyne.CurrentApp()
-	a.Settings().SetTheme(a.Settings().Theme())
-	if after != nil {
-		time.AfterFunc(100*time.Millisecond, func() { fyne.Do(after) })
-	}
 }

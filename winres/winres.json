@@ -14,7 +14,7 @@
         "description": "PasswordMaker Tray",
         "minimum-os": "win10",
         "execution-level": "as invoker",
-        "dpi-awareness": "per monitor v2",
+        "dpi-awareness": "system",
         "use-common-controls-v6": true
       }
     }

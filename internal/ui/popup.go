@@ -50,8 +50,6 @@ type popup struct {
 	password string
 	valid    bool // password holds a generated password
 
-	size fyne.Size // window size for the current layout
-
 	checkedMaster string // cache for the master password hash check
 	masterMatches bool
 }
@@ -207,8 +205,7 @@ func (p *popup) rebuild() {
 
 	padded := container.NewPadded(content)
 	p.win.SetContent(padded)
-	p.size = fyne.NewSize(popupWidth*p.app.scale(), padded.MinSize().Height)
-	p.win.Resize(p.size)
+	p.win.Resize(fyne.NewSize(popupWidth*p.app.scale(), padded.MinSize().Height))
 	p.regenerate()
 }
 
@@ -460,10 +457,6 @@ func (p *popup) show() {
 	placeWindow(p.win)
 	p.win.Show()
 	placeWindow(p.win)
-	fixScale(p.win, func() {
-		p.win.Resize(p.size)
-		placeWindow(p.win)
-	})
 	p.win.RequestFocus()
 
 	c := p.win.Canvas()
