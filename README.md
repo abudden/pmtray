@@ -40,6 +40,13 @@ its text selected, so the usual sequence is:
 3. **Ctrl+V**: the URL is replaced and the cursor jumps to the generated password.
 4. **Ctrl+C**: the password is copied and the popup closes.
 
+If the clipboard holds a web address (starting `http://` or `https://`) when
+the popup opens, it's put in the **Full URL** field automatically, replacing
+the previous one, and the cursor goes to the generated password. So once the
+master password has been entered, copying the address in the browser,
+clicking the tray icon and pressing **Ctrl+C** is enough. This can be turned
+off in the options.
+
 The tab order is Password → Full URL → Used text → Profile → Generated Password.
 **Esc** closes the popup. The full URL, used text and selected profile are kept
 while the program is running, so you can reopen the popup, choose another
@@ -87,6 +94,7 @@ The general options match the Chrome extension, plus a few for the tray version:
 * **Keep Master Password Hash** – stores a salted PBKDF2 hash so a mistyped
   master password is reported as a mismatch.
 * **Show Username Field in Popup** (new; off by default)
+* **Fill In Full URL From the Clipboard** (new; on by default)
 * **Start PasswordMaker When I Log In** (Windows and Linux)
 
 The extension's *Sync Profiles Between Computers* option isn't provided: keep

@@ -590,6 +590,7 @@ func (o *optionsWindow) refreshGeneral() {
 		}),
 		keepHash,
 		boolCheck("Show Username Field in Popup", &s.ShowUsername, nil),
+		boolCheck("Fill In Full URL From the Clipboard", &s.URLFromClipboard, nil),
 	}
 	if config.AutostartSupported() {
 		auto := widget.NewCheck("Start PasswordMaker When I Log In", nil)

@@ -302,3 +302,68 @@ func TestMasterPasswordHash(t *testing.T) {
 		t.Errorf("generated %q", p.generated.Text)
 	}
 }
+
+func TestClipboardURL(t *testing.T) {
+	cases := map[string]bool{
+		"https://example.com/x":    true,
+		"  HTTP://example.com \n":  true,
+		"http://":                  false,
+		"example.com":              false,
+		"secret password":          false,
+		"https://a.com\nhttps://b": false,
+		"":                         false,
+	}
+	for in, want := range cases {
+		if _, ok := clipboardURL(in); ok != want {
+			t.Errorf("clipboardURL(%q) = %v, want %v", in, ok, want)
+		}
+	}
+}
+
+func TestURLFromClipboardOnShow(t *testing.T) {
+	app, a := newTestApp(t, testProfiles())
+	p := app.popup
+
+	// Without a master password the URL is filled in but the focus stays
+	// on the password field.
+	a.Clipboard().SetContent("https://www.mybank.co.uk/login")
+	app.ShowPopup()
+	if p.url.Text != "https://www.mybank.co.uk/login" || p.profile.Selected != "Bank" {
+		t.Errorf("url %q profile %q", p.url.Text, p.profile.Selected)
+	}
+	if focused(p) != p.master {
+		t.Errorf("focus %T", focused(p))
+	}
+	test.Type(p.master, "secret")
+	p.hide()
+
+	// A new URL replaces the previous one and the generated password is
+	// focused, ready to copy.
+	a.Clipboard().SetContent("https://example.com/page")
+	app.ShowPopup()
+	if p.url.Text != "https://example.com/page" || p.used.Text != "example.com" ||
+		p.profile.Selected != "Default" {
+		t.Errorf("url %q used %q profile %q", p.url.Text, p.used.Text, p.profile.Selected)
+	}
+	if focused(p) != p.generated {
+		t.Errorf("focus %T", focused(p))
+	}
+	p.hide()
+
+	// Something that isn't a URL leaves the field alone.
+	a.Clipboard().SetContent("not a url")
+	app.ShowPopup()
+	if p.url.Text != "https://example.com/page" || focused(p) != p.url {
+		t.Errorf("url %q focus %T", p.url.Text, focused(p))
+	}
+	p.hide()
+
+	// The setting turns it off.
+	app.settings.URLFromClipboard = false
+	app.settingsChanged()
+	a.Clipboard().SetContent("https://other.org/")
+	app.ShowPopup()
+	if p.url.Text != "https://example.com/page" {
+		t.Errorf("url %q", p.url.Text)
+	}
+}

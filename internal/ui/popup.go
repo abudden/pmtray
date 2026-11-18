@@ -451,8 +451,40 @@ func (p *popup) copyAndHide() {
 	p.hide()
 }
 
+// clipboardURL returns the clipboard text if it looks like a URL.
+func clipboardURL(text string) (string, bool) {
+	text = strings.TrimSpace(text)
+	if text == "" || strings.ContainsAny(text, " \t\r\n") {
+		return "", false
+	}
+	lower := strings.ToLower(text)
+	for _, prefix := range []string{"http://", "https://"} {
+		if strings.HasPrefix(lower, prefix) && len(text) > len(prefix) {
+			return text, true
+		}
+	}
+	return "", false
+}
+
+// fillURLFromClipboard puts a URL from the clipboard in the Full URL field,
+// reporting whether it did.
+func (p *popup) fillURLFromClipboard() bool {
+	if !p.app.settings.URLFromClipboard {
+		return false
+	}
+	url, ok := clipboardURL(p.app.fyne.Clipboard().Content())
+	if !ok {
+		return false
+	}
+	if url != p.urlText {
+		p.url.SetText(url) // updates the used text and profile
+	}
+	return true
+}
+
 func (p *popup) show() {
 	p.syncMaster()
+	filled := p.fillURLFromClipboard()
 	p.regenerate()
 	placeWindow(p.win)
 	p.win.Show()
@@ -460,9 +492,13 @@ func (p *popup) show() {
 	p.win.RequestFocus()
 
 	c := p.win.Canvas()
-	if p.app.master == "" {
+	switch {
+	case p.app.master == "":
 		c.Focus(p.master)
-	} else {
+	case filled:
+		// As after pasting the URL: ready for Ctrl+C.
+		c.Focus(p.generated)
+	default:
 		c.Focus(p.url)
 		selectAll(&p.url.Entry)
 	}

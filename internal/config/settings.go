@@ -59,6 +59,7 @@ type Settings struct {
 	ShowModifiedTime      bool        `json:"show_modified_time"`
 	MasterPasswordHash    *MasterHash `json:"master_password_hash,omitempty"`
 	ShowUsername          bool        `json:"show_username"`
+	URLFromClipboard      bool        `json:"url_from_clipboard"`
 	StoredPassword        string      `json:"stored_password,omitempty"`
 }
 
@@ -70,6 +71,7 @@ func DefaultSettings() Settings {
 		ExpireMinutes:       5,
 		SortProfiles:        "user_defined",
 		UseVerificationCode: true,
+		URLFromClipboard:    true,
 	}
 }
 
